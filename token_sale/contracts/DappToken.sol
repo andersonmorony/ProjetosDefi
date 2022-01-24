@@ -1,8 +1,33 @@
 pragma solidity >=0.4.2;
 
 contract DappToken{
-    uint256 public tokenAmount;
-    constructor() {
-        tokenAmount = 1000000;
+
+    string public name = "DApp Token";
+    string public symbol = "DAPP";
+    string public currentVersion = "DApp Token v1.0";
+    uint256 public totalSupply;
+
+    event Tranfer(
+        address _from,
+        address _to,
+        uint256 _value
+    );
+
+    mapping(address => uint256) public balanceOf;
+
+    constructor(uint256 _initialSupply) {
+        balanceOf[msg.sender] = _initialSupply;
+        totalSupply = _initialSupply;
+    }
+
+    function transfer(address _to, uint256 _value) public returns(bool success) {
+        require(balanceOf[msg.sender] >= _value);
+
+        balanceOf[msg.sender] -= _value;
+        balanceOf[_to] += _value;
+
+        emit Tranfer(msg.sender, _to, _value);
+        
+        return true;
     }
 }
