@@ -64,13 +64,31 @@ contract("Token", async accounts => {
         let dappToken = await DappToken.deployed();
         await dappToken.transfer(accounts[1], 1000, {from: accounts[0]})
         .then(function(res){
-            should(res.logs.length).equal(1);
-            should(res.logs[0].event).equal('Transfer');
-            should(res.logs[0].args._from).equal(accounts[0]);
-            should(res.logs[0].args._to).equal(accounts[1]);
-            should(res.logs[0].args._value).equal(1000);
+            assert.equal(res.logs[0].event, 'Transfer');
+            assert.equal(res.logs[0].args._from, accounts[0]);
+            assert.equal(res.logs[0].args._to, accounts[1]);
+            assert.equal(res.logs[0].args._value, 1000);
         })
-        
+    })
+
+    it('Should approval amount a to account b', async () => {
+        let dappToken = await DappToken.deployed();
+        let approvalCall = await dappToken.approve.call(accounts[1], 100, {from: accounts[0]})
+        let approval = await dappToken.approve(accounts[1], 100, {from: accounts[0]})
+
+        assert.equal(approvalCall, true)
+        assert.equal(approval.logs[0].event, 'Approval');
+        assert.equal(approval.logs[0].args._from, accounts[0]);
+        assert.equal(approval.logs[0].args._spender, accounts[1]);
+        assert.equal(approval.logs[0].args._value.toNumber(), 100);
+    })
+
+    it('Should allowance', async () => {
+        let dappToken = await DappToken.deployed()
+        await dappToken.approve(accounts[1], 100, {from: accounts[0]})
+        let allowance = await dappToken.allowance(accounts[0], accounts[1])
+
+        assert.equal(allowance.toNumber(), 100)
 
     })
 
