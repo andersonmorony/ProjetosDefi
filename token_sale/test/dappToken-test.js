@@ -89,6 +89,34 @@ contract("Token", async accounts => {
         let allowance = await dappToken.allowance(accounts[0], accounts[1])
 
         assert.equal(allowance.toNumber(), 100)
+    })
+
+    it("Should to do a transition from after all criterial", async () => {
+
+        let fromAccount = accounts[2]
+        let toAccount = accounts[3]
+        let spenderAccount = accounts[4]
+
+        let dappToken = await DappToken.deployed()
+        await dappToken.transfer(fromAccount, 100, {from: accounts[0]})
+        await dappToken.approve(spenderAccount, 10, {from: fromAccount})
+        let transferFromCall = await dappToken.transferFrom.call(fromAccount, toAccount, 10, { from: spenderAccount})
+        let transferFrom = await dappToken.transferFrom(fromAccount, toAccount, 10, { from: spenderAccount})
+        let balanceFrom = await dappToken.balanceOf(fromAccount);
+        let balanceTo = await dappToken.balanceOf(toAccount);
+        let allowanceSpenderAccount = await dappToken.allowance(fromAccount, spenderAccount);
+        try{
+            await dappToken.transferFrom(fromAccount, toAccount, 1000, { from: spenderAccount})
+        }catch(error){
+            assert(error.message.indexOf("revert") >= 0)
+            assert.isNotOk()
+        }
+        assert.equal(transferFromCall, true, 'Should return true');
+        assert.equal(transferFrom.logs[0].event, 'Transfer');
+        assert.equal(balanceFrom.toNumber(), 90);
+        assert.equal(balanceTo.toNumber(), 10);
+        assert.equal(allowanceSpenderAccount.toNumber(), 0);
+
 
     })
 
