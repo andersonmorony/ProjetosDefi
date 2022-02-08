@@ -32,4 +32,11 @@ contract DappTokenSale{
         emit sell(msg.sender, _amountOfTokens);
 
     }
+
+    function endSales() public{
+        require(msg.sender == owner);
+        require(tokenContract.transfer(owner, tokenContract.balanceOf(address(this))));
+
+        selfdestruct(payable(address(owner)));
+    }
 }

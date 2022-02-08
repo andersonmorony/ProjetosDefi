@@ -70,6 +70,26 @@ contract("DappTokenSale", function(accounts){
         assert.isBelow(balanceSale.toNumber(), 750000)
     })
 
+    it('Should end Sales', async () => {
+        try{
+            await dappTokenSale.endSales({from: accounts[1]})
+        }catch(error){
+            assert(error.message.indexOf('revert') >= 1, 'Must be admin on contract')
+        }
+
+        await dappTokenSale.endSales({from: admin})
+
+        let dapptokenIntrance = await DappTokenInstance.deployed();
+        let balanceOfAdmin = await dapptokenIntrance.balanceOf(admin)
+        let balanceOfContract = await dapptokenIntrance.balanceOf(dappTokenSale.address)
+        
+        assert.equal(balanceOfAdmin.toNumber(), 999990)
+        assert.equal(balanceOfContract.toNumber(), 0)
+        
+        
+        
+    })
+
 
 
 });
